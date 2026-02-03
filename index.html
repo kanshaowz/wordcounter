@@ -3,86 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordCounter - 字数统计</title>
+    <title>WordCounter Pro - 专业写作工具</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-markdown.min.js"></script>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Header -->
-        <header class="header">
-            <div class="logo">
-                <span class="logo-icon">◉</span>
-                <span class="logo-text">WordCounter</span>
-            </div>
-            <div class="header-actions">
-                <div class="language-selector">
-                    <button class="lang-btn active" data-lang="zh">中</button>
-                    <button class="lang-btn" data-lang="en">EN</button>
-                    <button class="lang-btn" data-lang="es">ES</button>
-                    <button class="lang-btn" data-lang="ja">日</button>
-                    <button class="lang-btn" data-lang="ko">한</button>
+    <div class="app-container" id="appContainer">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">◉</span>
+                    <span class="logo-text">WordCounter</span>
                 </div>
-                <button class="goal-toggle" id="goalToggle">
-                    <span class="goal-icon">◎</span>
-                    <span class="goal-text" data-i18n="goal">目标</span>
+                <button class="sidebar-toggle" id="sidebarToggle" title="收起侧边栏">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/>
+                    </svg>
                 </button>
             </div>
-        </header>
-
-        <!-- Goal Panel -->
-        <div class="goal-panel" id="goalPanel">
-            <div class="goal-content">
-                <label class="goal-label" data-i18n="setGoal">设置写作目标</label>
-                <div class="goal-input-group">
-                    <input type="number" id="goalInput" min="1" value="500" placeholder="500">
-                    <select id="goalType">
-                        <option value="words" data-i18n="words">字</option>
-                        <option value="chars" data-i18n="chars">字符</option>
-                    </select>
+            
+            <div class="documents-section">
+                <div class="section-header">
+                    <span class="section-title" data-i18n="documents">文档</span>
+                    <button class="btn-icon" id="newDocBtn" title="新建文档">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
                 </div>
-                <div class="goal-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
+                <ul class="document-list" id="documentList">
+                    <!-- Documents will be dynamically added here -->
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="auto-save-status" id="autoSaveStatus">
+                    <span class="save-indicator"></span>
+                    <span class="save-text" data-i18n="saved">已保存</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="btn-icon sidebar-show-btn" id="sidebarShowBtn" title="显示侧边栏">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <div class="doc-title-wrapper">
+                        <input type="text" class="doc-title-input" id="docTitleInput" placeholder="无标题文档" data-i18n-placeholder="untitled">
                     </div>
-                    <span class="progress-text" id="progressText">0%</span>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="btn-icon" id="focusModeBtn" title="专注模式 (F11)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                        </svg>
+                    </button>
+                    
+                    <div class="dropdown">
+                        <button class="btn-icon" id="exportBtn" title="导出">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu" id="exportMenu">
+                            <button class="dropdown-item" data-format="txt">
+                                <span class="dropdown-icon">📄</span>
+                                <span>导出为 TXT</span>
+                            </button>
+                            <button class="dropdown-item" data-format="md">
+                                <span class="dropdown-icon">📝</span>
+                                <span>导出为 Markdown</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="btn-icon" id="statsBtn" title="统计图表">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                    </button>
+
+                    <button class="btn-icon" id="goalToggle" title="写作目标">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="6"></circle>
+                            <circle cx="12" cy="12" r="2"></circle>
+                        </svg>
+                    </button>
+
+                    <div class="language-selector">
+                        <button class="lang-btn active" data-lang="zh">中</button>
+                        <button class="lang-btn" data-lang="en">EN</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Goal Panel -->
+            <div class="goal-panel" id="goalPanel">
+                <div class="goal-content">
+                    <div class="goal-settings">
+                        <label class="goal-label" data-i18n="setGoal">设置写作目标</label>
+                        <div class="goal-input-group">
+                            <input type="number" id="goalInput" min="1" value="500" placeholder="500">
+                            <select id="goalType">
+                                <option value="words" data-i18n="words">字</option>
+                                <option value="chars" data-i18n="chars">字符</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="goal-progress-section">
+                        <div class="progress-info">
+                            <span class="progress-current" id="progressCurrent">0</span>
+                            <span class="progress-separator">/</span>
+                            <span class="progress-target" id="progressTarget">500</span>
+                            <span class="progress-unit" data-i18n="words">字</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <span class="progress-text" id="progressText">0%</span>
+                        </div>
+                        <div class="goal-stats">
+                            <span class="goal-stat" id="remainingText">还需 500 字</span>
+                            <span class="goal-stat" id="estimateText">预计 25 分钟</span>
+                        </div>
+                    </div>
+                    <div class="goal-chart-container">
+                        <canvas id="goalChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editor -->
+            <div class="editor-wrapper">
+                <div class="editor-container" id="editorContainer">
+                    <div class="editor-highlight-layer" id="highlightLayer" aria-hidden="true"></div>
+                    <textarea 
+                        id="editor" 
+                        class="editor" 
+                        placeholder="开始写作..."
+                        data-i18n-placeholder="startWriting"
+                        spellcheck="false"
+                    ></textarea>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <footer class="stats-bar" id="statsBar">
+                <div class="stat-group">
+                    <div class="stat-item">
+                        <span class="stat-value" id="wordCount">0</span>
+                        <span class="stat-label" data-i18n="words">字</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="charCount">0</span>
+                        <span class="stat-label" data-i18n="chars">字符</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="paragraphCount">0</span>
+                        <span class="stat-label" data-i18n="paragraphs">段落</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="readingTime">0</span>
+                        <span class="stat-label" data-i18n="readingTime">分钟阅读</span>
+                    </div>
+                </div>
+                <div class="stat-group">
+                    <button class="stat-item clickable" id="writingTimeBtn" title="写作时长">
+                        <span class="stat-value" id="writingTime">00:00</span>
+                        <span class="stat-label" data-i18n="writingTime">写作时长</span>
+                    </button>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Stats Modal -->
+    <div class="modal" id="statsModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-i18n="writingStats">写作统计</h3>
+                <button class="modal-close" id="closeStatsModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-card-value" id="totalWords">0</span>
+                        <span class="stat-card-label" data-i18n="totalWords">总字数</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-value" id="totalChars">0</span>
+                        <span class="stat-card-label" data-i18n="totalChars">总字符</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-value" id="totalTime">0</span>
+                        <span class="stat-card-label" data-i18n="totalTime">写作时间</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-value" id="avgSpeed">0</span>
+                        <span class="stat-card-label" data-i18n="avgSpeed">字/分钟</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
                 </div>
             </div>
         </div>
-
-        <!-- Main Editor -->
-        <main class="editor-container">
-            <textarea 
-                id="editor" 
-                class="editor" 
-                placeholder="开始写作..."
-                data-i18n-placeholder="startWriting"
-                spellcheck="false"
-            ></textarea>
-        </main>
-
-        <!-- Stats Bar -->
-        <footer class="stats-bar">
-            <div class="stat-item">
-                <span class="stat-value" id="wordCount">0</span>
-                <span class="stat-label" data-i18n="words">字</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value" id="charCount">0</span>
-                <span class="stat-label" data-i18n="chars">字符</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value" id="paragraphCount">0</span>
-                <span class="stat-label" data-i18n="paragraphs">段落</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value" id="readingTime">0</span>
-                <span class="stat-label" data-i18n="readingTime">分钟阅读</span>
-            </div>
-        </footer>
     </div>
+
+    <!-- Delete Confirm Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-small">
+            <div class="modal-body">
+                <p data-i18n="confirmDelete">确定要删除此文档吗？</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelDelete" data-i18n="cancel">取消</button>
+                <button class="btn btn-danger" id="confirmDelete" data-i18n="delete">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
 
     <script src="app.js"></script>
 </body>
