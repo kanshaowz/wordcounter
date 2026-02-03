@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordCounter - 字数统计</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">◉</span>
+                <span class="logo-text">WordCounter</span>
+            </div>
+            <div class="header-actions">
+                <div class="language-selector">
+                    <button class="lang-btn active" data-lang="zh">中</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                    <button class="lang-btn" data-lang="es">ES</button>
+                    <button class="lang-btn" data-lang="ja">日</button>
+                    <button class="lang-btn" data-lang="ko">한</button>
+                </div>
+                <button class="goal-toggle" id="goalToggle">
+                    <span class="goal-icon">◎</span>
+                    <span class="goal-text" data-i18n="goal">目标</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Goal Panel -->
+        <div class="goal-panel" id="goalPanel">
+            <div class="goal-content">
+                <label class="goal-label" data-i18n="setGoal">设置写作目标</label>
+                <div class="goal-input-group">
+                    <input type="number" id="goalInput" min="1" value="500" placeholder="500">
+                    <select id="goalType">
+                        <option value="words" data-i18n="words">字</option>
+                        <option value="chars" data-i18n="chars">字符</option>
+                    </select>
+                </div>
+                <div class="goal-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span class="progress-text" id="progressText">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Editor -->
+        <main class="editor-container">
+            <textarea 
+                id="editor" 
+                class="editor" 
+                placeholder="开始写作..."
+                data-i18n-placeholder="startWriting"
+                spellcheck="false"
+            ></textarea>
+        </main>
+
+        <!-- Stats Bar -->
+        <footer class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-value" id="wordCount">0</span>
+                <span class="stat-label" data-i18n="words">字</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="charCount">0</span>
+                <span class="stat-label" data-i18n="chars">字符</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="paragraphCount">0</span>
+                <span class="stat-label" data-i18n="paragraphs">段落</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="readingTime">0</span>
+                <span class="stat-label" data-i18n="readingTime">分钟阅读</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
