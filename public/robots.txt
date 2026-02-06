@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://kanshaowz.github.io/wordcounter/sitemap.xml
